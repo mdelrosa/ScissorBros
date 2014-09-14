@@ -3,6 +3,22 @@
 
 var autonomy = require('ardrone-autonomy');
 var mission  = autonomy.createMission();
+console.log("hello1")
+
+// Land on ctrl-c
+var exiting = false;
+process.on('SIGINT', function() {
+    if (exiting) {
+        process.exit(0);
+    } else {
+        console.log('Got SIGINT. Landing, press Control-C again to force exit.');
+        exiting = true;
+        mission.control().disable();
+        mission.client().land(function() {
+            process.exit(0);
+        });
+    }
+});
 
 function Drawing(letters, widthScale, heightScale) {
 	// widthScale gives a scaling factor for the x movement of copter
@@ -24,6 +40,7 @@ function Drawing(letters, widthScale, heightScale) {
 	// Define vectors
 	this.vectors = [];
 	for (i=0; i<letters.length;i++) {
+		console.log("hello")
 		var x, y;
 		var letter = letters[i]
 		var lnodes = letter.nodes
@@ -36,8 +53,8 @@ function Drawing(letters, widthScale, heightScale) {
 				// console.log("j: ",j)
 				y = heightScale*(Math.floor(lnodes[j+1]/3) - Math.floor(lnodes[j]/3));
 				Y -= y
-				// console.log("x:", x, "y:",y);
-				// console.log("X:", X, "Y:", Y);
+				console.log("x:", x, "y:",y);
+				console.log("X:", X, "Y:", Y);
 				this.vectors.push({x: x, y: y});
 			}
 			else if (j === lnodes.length-1 && i < letters.length-1) {
@@ -47,8 +64,8 @@ function Drawing(letters, widthScale, heightScale) {
 				y = heightScale*(Math.floor(letters[i+1].nodes[0]/3)-Math.floor(lnodes[j]/3));
 				Y -= y
 				// console.log("NEXT LETTER");
-				// console.log("X:", X, "Y:", Y);
-				// console.log("x:", x, "y:", y);
+				console.log("X:", X, "Y:", Y);
+				console.log("x:", x, "y:", y);
 				this.vectors.push({x: x, y: y});
 				this.vectors.push("ON");
 			}
@@ -80,7 +97,7 @@ var drawing = new Drawing([letterO, letterL, letterI, letterN], 1.0, 1.5);
 
 // console.log(typeof drawing.vectors[0])
 
-// console.log(drawing.vectors);
+console.log(drawing.vectors);
 
 // mission.task(function(callback) {...})
 // ^^^ use this to turn lights on/off ^^^
@@ -88,9 +105,7 @@ var drawing = new Drawing([letterO, letterL, letterI, letterN], 1.0, 1.5);
 var xPos = 0;
 var zPos = 3;
 
-mission.takeoff();
-mission.zero();
-mission.go({x: xPos, y: 0, z: zPos, yaw: 0});
+mission.takeoff().zero().go({x: xPos, y: 0, z: zPos, yaw: 0});
 
 var vectors = drawing.vectors;
 for (i=0; i<vectors.length; i++) {
@@ -99,9 +114,11 @@ for (i=0; i<vectors.length; i++) {
 		xPos = xPos + v.x;
 		zPos = zPos - v.y;
 		mission.go({x: xPos, y: 0, z: zPos, yaw: 0});
+		mission.wait(3000);
 	}
 	else {
 		console.log(v);
+		console.log("TYPEOF V IS A STRING (end of letter)")
 		mission.task(function() {
 			if (v == "OFF") {
 				// Turn off LED
@@ -116,6 +133,10 @@ for (i=0; i<vectors.length; i++) {
 			}
 		});
 	}
+}
+
+function missionDo(missionObj, action) {
+	return missionObj.action()
 }
 
 mission.run(function (err, result) {

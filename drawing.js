@@ -16,37 +16,41 @@ function Drawing(letters, widthScale, heightScale) {
 		}
 	}
 
+	var X = 0, Y = 3;
+
 	// Define vectors
 	this.vectors = [];
 	for (i=0; i<letters.length;i++) {
 		var x, y;
-		print(letters[i].name);
-		for (j=0; j<= letters[i].nodes.length; j++) {
+		var letter = letters[i]
+		var lnodes = letter.nodes
+		console.log(letter.name);
+		for (j=0; j<= lnodes.length; j++) {
 
-			// x = widthScale*(next node%3 - current node%3)
-			// y = heightScale*(next node/3 - current node/3)
-			// magnitude = L2 Norm of x and y
-			// theta = arctan(y/x)
-			if (j < letters[i].nodes.length-1) {
-				x = widthScale*(letters[i].nodes[j+1]%3 - letters[i].nodes[j]%3 );
-				print("j: ",j)
-				y = heightScale*(Math.floor(letters[i].nodes[j+1]/3) - Math.floor(letters[i].nodes[j]/3));
-				// mag = Math.sqrt(x^2 + y^2);
-				// theta = Math.atan2(y,x);
-				print("x:", x, "y:",y);
+			if (j < lnodes.length-1) {
+				x = widthScale*(lnodes[j+1]%3 - lnodes[j]%3);
+				X += x
+				console.log("j: ",j)
+				y = heightScale*(Math.floor(lnodes[j+1]/3) - Math.floor(lnodes[j]/3));
+				Y -= y
+				// console.log("x:", x, "y:",y);
+				console.log("X:", X, "Y:", Y);
 				this.vectors.push({x: x, y: y});
 			}
-			else if (j === letters[i].nodes.length-1 && i < letters.length-1) {
+			else if (j === lnodes.length-1 && i < letters.length-1) {
 				this.vectors.push("OFF");
-				x = widthScale*((letters[i+1].nodes[0]%3)+(2-letters[i].nodes[j]%3)+1);
-				y = heightScale*(Math.floor(letters[i+1].nodes[0]/3)-Math.floor(letters[i].nodes[j]/3));
-				print("NEXT LETTER");
-				print("x:", x, "y:", y);
+				x = widthScale*((letters[i+1].nodes[0]%3)+(2-lnodes[j]%3)+1);
+				X += x
+				y = heightScale*(Math.floor(letters[i+1].nodes[0]/3)-Math.floor(lnodes[j]/3));
+				Y -= y
+				console.log("NEXT LETTER");
+				console.log("X:", X, "Y:", Y);
+				// console.log("x:", x, "y:", y);
 				this.vectors.push({x: x, y: y});
 				this.vectors.push("ON");
 			}
 		}
-	// print(this.vectors);
+	// console.log(this.vectors);
 	}
 	this.vectors.push("STOP");
 }
@@ -73,4 +77,4 @@ var letterI = new Letter(Inodes, "I")
 var letterN = new Letter(Nnodes, "N")
 var drawing = new Drawing([letterO, letterL, letterI, letterN], 1.0, 1.5);
 
-print(drawing.vectors);
+console.log(drawing.vectors);

@@ -95,13 +95,6 @@ var letterI = new Letter(Inodes, "I")
 var letterN = new Letter(Nnodes, "N")
 var drawing = new Drawing([letterO, letterL, letterI, letterN], 1.0, 1.5);
 
-// console.log(typeof drawing.vectors[0])
-
-console.log(drawing.vectors);
-
-// mission.task(function(callback) {...})
-// ^^^ use this to turn lights on/off ^^^
-
 var xPos = 0;
 var zPos = 3;
 
